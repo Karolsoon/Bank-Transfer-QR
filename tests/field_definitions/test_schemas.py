@@ -2,8 +2,12 @@ import re
 
 import pytest
 
-from src.field_definitions import (RECIPIENT_IDENTIFIER, COUNTRY_CODE, IBAN,
-    AMOUNT_IN_POLSKIE_GROSZE)
+from src.field_definitions import (
+    RECIPIENT_IDENTIFIER,
+    COUNTRY_CODE,
+    IBAN_PL,
+    AMOUNT_IN_POLSKIE_GROSZE
+)
 
 
 @pytest.fixture(scope='session')
@@ -29,9 +33,9 @@ def recipient_identifier_schema():
                 'type': str,
                 'required': True
             },
-            'transformation': {
+            'transformations': {
                 'required': False,
-                'type': callable
+                'type': tuple
             }
         }
     }
@@ -56,9 +60,9 @@ def field_schema():
             'type': str,
             'required': True
         },
-        'transformation': {
+        'transformations': {
             'required': False,
-            'type': callable
+            'type': tuple
         }
     }
 
@@ -67,7 +71,7 @@ def field_schema():
     argnames='schema,expected',
     argvalues=[
         (COUNTRY_CODE, 'field_schema'),
-        (IBAN, 'field_schema'),
+        (IBAN_PL, 'field_schema'),
         (AMOUNT_IN_POLSKIE_GROSZE, 'field_schema')
     ]
 )
