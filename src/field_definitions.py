@@ -21,6 +21,9 @@ QR_TEXT_FORMAT = ('{recipient_identifier}'
 )
 
 
+SEPARATOR = '|' # Not negiotiable?
+
+
 RECIPIENT_IDENTIFIER = {
         'type_1': {
             'required': True,
@@ -37,7 +40,9 @@ RECIPIENT_IDENTIFIER = {
                 (\d{2}) # 2 digits from the NIP
                 ''',
                 re.VERBOSE),
-            'transformation': str,
+            'transformations': [
+                (str, tuple())
+            ],
             'default': None
         },
         'type_2': {
@@ -55,7 +60,9 @@ RECIPIENT_IDENTIFIER = {
                 (\d{2}) # 2 digits from the NIP
                 ''',
                 re.VERBOSE),
-            'transformation': str,
+            'transformations': [
+                (str, tuple())
+            ],
             'default': ''
         },
         'description': ('Recipient identifier.\n'
@@ -72,15 +79,20 @@ COUNTRY_CODE = {
     'required': False,
     'default': 'PL',
     'validator': re.compile(r'([A-Z]{2})'),
-    'transformation': str.upper,
+    'transformations': [
+        (str.upper, tuple())
+    ],
     'description': 'ISO 3166-2. Two uppercase letters country code'
 }
 
-IBAN = {
+
+IBAN_PL = {
     'required': True,
     'default': None,
     'validator': re.compile(r'^(PL)?([0-9]{26})'),
-    'transformation': str,
+    'transformations': [
+        (str, tuple())
+    ],
     'description': ('Internatinal Banking Account Number. '
                     'This implementation is specific for Poland.\n'
                     'Other countries may require different validation patterns.\n'
@@ -93,7 +105,12 @@ AMOUNT_IN_POLSKIE_GROSZE = {
     'required': True,
     'default': '000000',
     'validator': re.compile(r'^(\d{6})$'),
-    'transformation': str,
+    'transformations': [
+        (str, tuple()),
+        (str.replace, (',', '')),
+        (str.replace, ('.', '')),
+        (str.rjust, (6, '0'))
+    ],
     'description': ('The amount to be transferred to the recipient.\n'
                     'Format is like 9999,00 but without the comma: 999900.\n'
                     'Deviates from the recommendation by NOT allowing higher '
@@ -101,13 +118,42 @@ AMOUNT_IN_POLSKIE_GROSZE = {
 }
 
 
-### TEMPLATE
-"""
-{
-    'required':,
-    'default':,
-    'validator':,
-    'transformation':,
-    'description':,
+RECIPIENT_NAME = {
+    'required': True,
+    'default': None,
+    'validator': re.compile(r'([a-zA-Z0-9 ]{3,20})'),
+    'transformations': [
+        (str.strip, tuple())
+    ],
+    'description': ('The name of the recipient. Max. length 20 characters.'),
 }
-"""
+
+
+PAYMENT_TITLE = {
+    'required': True,
+    'default': None,
+    'validator': re.compile(r'([a-zA-Z0-9 ]{3,30})'),
+    'transformations': None,
+    'description': 'TBD',
+}
+
+
+RESERVE_1 = {
+    'required': True,
+    'default': '',
+    'description': 'Unused.'
+}
+
+
+RESERVE_2 = {
+    'required': True,
+    'default': '',
+    'description': 'Unused.'
+}
+
+
+RESERVE_3 = {
+    'required': True,
+    'default': '',
+    'description': 'Unused.'
+}
