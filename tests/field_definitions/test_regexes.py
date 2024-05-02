@@ -8,7 +8,7 @@ from src.field_definitions import (
     IBAN_PL,
     AMOUNT_IN_POLSKIE_GROSZE,
     RECIPIENT_NAME,
-    PAYMENT_TITLE
+    TRANSFER_TITLE
 )
 
 
@@ -177,7 +177,7 @@ def test_too_short_recipient_name_fails(recipient):
 
 
 @pytest.mark.parametrize(
-    argnames='payment_title',
+    argnames='TRANSFER_title',
     argvalues=[
         '01234567890123456789012345678901',     # 32 characters
         'Dziękuję za przelew',
@@ -190,33 +190,33 @@ def test_too_short_recipient_name_fails(recipient):
         """ąęźłóóććśśś ',"()/ blablablabl"""
     ]
 )
-def test_correct_payment_title_passes(payment_title):
-    r = get_regex(PAYMENT_TITLE)
-    result = r.search(payment_title)
+def test_correct_TRANSFER_title_passes(TRANSFER_title):
+    r = get_regex(TRANSFER_TITLE)
+    result = r.search(TRANSFER_title)
     assert result is not None
 
 
 @pytest.mark.parametrize(
-    argnames='payment_title',
+    argnames='TRANSFER_title',
     argvalues=[
         '012345678901234567890123456789012'     # 33 characters
     ]
 )
-def test_too_long_payment_title_fails(payment_title):
-    r = get_regex(PAYMENT_TITLE)
-    result = r.search(payment_title)
+def test_too_long_TRANSFER_title_fails(TRANSFER_title):
+    r = get_regex(TRANSFER_TITLE)
+    result = r.search(TRANSFER_title)
     assert result is None
 
 
 @pytest.mark.parametrize(
-    argnames='payment_title',
+    argnames='TRANSFER_title',
     argvalues=[
         'Dz'
     ]
 )
-def test_too_short_payment_title_fails(payment_title):
-    r = get_regex(PAYMENT_TITLE)
-    result = r.search(payment_title)
+def test_too_short_TRANSFER_title_fails(TRANSFER_title):
+    r = get_regex(TRANSFER_TITLE)
+    result = r.search(TRANSFER_title)
     assert result is None
 
 

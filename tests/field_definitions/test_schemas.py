@@ -8,7 +8,7 @@ from src.field_definitions import (
     IBAN_PL,
     AMOUNT_IN_POLSKIE_GROSZE,
     RECIPIENT_NAME,
-    PAYMENT_TITLE
+    TRANSFER_TITLE
 )
 
 
@@ -54,6 +54,10 @@ def field_schema():
             'type': re.Pattern,
             'required': True
         },
+        'validation_exception': {
+            'type': Exception,
+            'required': True
+        },
         'default': {
             'required': False,
             'type': object
@@ -80,7 +84,7 @@ def field_schema():
         (IBAN_PL, 'field_schema'),
         (AMOUNT_IN_POLSKIE_GROSZE, 'field_schema'),
         (RECIPIENT_NAME, 'field_schema'),
-        (PAYMENT_TITLE, 'field_schema')
+        (TRANSFER_TITLE, 'field_schema')
     ]
 )
 def test_standard_field_schemas(schema: dict, expected: dict, request):
@@ -90,9 +94,12 @@ def test_standard_field_schemas(schema: dict, expected: dict, request):
         assert field in exp if exp[field]['required'] else True
 
         expected_field_type = exp[field].get('type', object)
-        # If the schema has a type tp check
+        # If the schema has a type to check
         if isinstance(expected_field_type, type):
-            assert isinstance(schema[field], expected_field_type)
+            if expected_field_type == Exception:
+                assert issubclass(schema[field], expected_field_type)
+            else:
+                assert isinstance(schema[field], expected_field_type)
             # If the current field is expected to be a list or tuple, unpack the field
             if isinstance(expected_field_type, (tuple, list)):
                 was_there_an_item_inside_the_iterable = False

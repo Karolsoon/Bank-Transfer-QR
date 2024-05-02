@@ -1,5 +1,14 @@
 import re
 
+from src.exceptions import (
+    RecipientIdentifierValidationError,
+    IBANValidationError,
+    CountryCodeValidationError,
+    AmountValidationError,
+    RecipientNameValidationError,
+    TransferTitleValidationError
+)
+
 
 QR_TEXT_FORMAT = ('{recipient_identifier}'
             '{separator}'
@@ -43,6 +52,7 @@ RECIPIENT_IDENTIFIER = {
                 $
                 ''',
                 re.VERBOSE),
+            'validation_exception': RecipientIdentifierValidationError,
             'transformations': [
                 (str, tuple())
             ],
@@ -63,6 +73,7 @@ RECIPIENT_IDENTIFIER = {
                 (\d{2}) # 2 digits from the NIP
                 ''',
                 re.VERBOSE),
+            'validation_exception': RecipientIdentifierValidationError,
             'transformations': [
                 (str, tuple())
             ],
@@ -82,6 +93,7 @@ COUNTRY_CODE = {
     'required': False,
     'default': 'PL',
     'validator': re.compile(r'^([a-zA-Z]{2})$'),
+    'validation_exception': CountryCodeValidationError,
     'transformations': [
         (str.upper, tuple())
     ],
@@ -93,6 +105,7 @@ IBAN_PL = {
     'required': True,
     'default': None,
     'validator': re.compile(r'^(PL)?([0-9]{26})$'),
+    'validation_exception': IBANValidationError,
     'transformations': [
         (str, tuple())
     ],
@@ -108,6 +121,7 @@ AMOUNT_IN_POLSKIE_GROSZE = {
     'required': True,
     'default': '000000',
     'validator': re.compile(r'^(\d{6})$'),
+    'validation_exception': AmountValidationError,
     'transformations': [
         (str, tuple()),
         (str.replace, (',', '')),
@@ -125,6 +139,7 @@ RECIPIENT_NAME = {
     'required': True,
     'default': None,
     'validator': re.compile(r'^([\w -.,/\(\)"\']{3,20})$'),
+    'validation_exception': RecipientNameValidationError,
     'transformations': [
         (str.strip, tuple())
     ],
@@ -132,14 +147,15 @@ RECIPIENT_NAME = {
 }
 
 
-PAYMENT_TITLE = {
+TRANSFER_TITLE = {
     'required': True,
     'default': None,
     'validator': re.compile(r'^([\w -.,/\(\)"\']{3,32})$'),
+    'validation_exception': TransferTitleValidationError,
     'transformations': [
         (str.strip, tuple())
     ],
-    'description': 'Payment title. Max. length 32 characters.'
+    'description': 'Transfer title. Max. length 32 characters.'
 }
 
 
