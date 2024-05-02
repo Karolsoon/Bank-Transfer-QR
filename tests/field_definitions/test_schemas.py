@@ -35,7 +35,7 @@ def recipient_identifier_schema():
             },
             'transformations': {
                 'required': False,
-                'type': tuple
+                'type': list
             }
         }
     }
@@ -62,7 +62,11 @@ def field_schema():
         },
         'transformations': {
             'required': False,
-            'type': tuple
+            'type': list,
+            'item': {
+                'required': False,
+                'type': tuple
+            }
         }
     }
 
@@ -81,7 +85,20 @@ def test_standard_field_schemas(schema: dict, expected: dict, request):
         print(f'Current field: {field}')
         assert field in exp if exp[field]['required'] else True
 
-        if isinstance(exp[field].get('type'), type):
-            assert isinstance(schema[field], exp[field].get('type', object))
+        expected_field_type = exp[field].get('type', object)
+        # If the schema has a type tp check
+        if isinstance(expected_field_type, type):
+            assert isinstance(schema[field], expected_field_type)
+            # If the current field is expected to be a list or tuple, unpack the field
+            if isinstance(expected_field_type, (tuple, list)):
+                was_there_an_item_inside_the_iterable = False
+                for item in field:
+                    was_there_an_item_inside_the_iterable = True
+                    is_item_required = exp[field]['item']['required']
+                    # ... check it's type
+                    assert isinstance(item, exp[field]['item'].get('type', object))
+                # ... if the item is required, check if there was an item
+                if is_item_required:
+                    assert was_there_an_item_inside_the_iterable == is_item_required
         else:
             assert exp[field]['type'](schema[field])
