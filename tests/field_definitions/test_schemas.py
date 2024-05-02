@@ -6,7 +6,9 @@ from src.field_definitions import (
     RECIPIENT_IDENTIFIER,
     COUNTRY_CODE,
     IBAN_PL,
-    AMOUNT_IN_POLSKIE_GROSZE
+    AMOUNT_IN_POLSKIE_GROSZE,
+    RECIPIENT_NAME,
+    PAYMENT_TITLE
 )
 
 
@@ -76,7 +78,9 @@ def field_schema():
     argvalues=[
         (COUNTRY_CODE, 'field_schema'),
         (IBAN_PL, 'field_schema'),
-        (AMOUNT_IN_POLSKIE_GROSZE, 'field_schema')
+        (AMOUNT_IN_POLSKIE_GROSZE, 'field_schema'),
+        (RECIPIENT_NAME, 'field_schema'),
+        (PAYMENT_TITLE, 'field_schema')
     ]
 )
 def test_standard_field_schemas(schema: dict, expected: dict, request):

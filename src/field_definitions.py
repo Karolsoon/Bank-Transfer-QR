@@ -1,5 +1,6 @@
 import re
 
+from src import validators
 
 QR_TEXT_FORMAT = ('{recipient_identifier}'
             '{separator}'
@@ -29,15 +30,18 @@ RECIPIENT_IDENTIFIER = {
             'required': True,
             'validator': re.compile(
                 r'''
-                ^
-                (16)?   # Optional for systems that operate with 12 digit NIPs
-                (\d{3}) # 3 digits from the NIP
+                (
+                    ^16\d{3} # Optional for systems that operate with 12 digit NIPs
+                    |   
+                    ^\d{3}     # 3 digits from the NIP
+                )
                 (-)?    # Separator, optional
                 (\d{3}) # 3 digits from the NIP
                 (-)?    # Separator, optional
                 (\d{2}) # 2 digits from the NIP
                 (-)?    # Separator, optional
                 (\d{2}) # 2 digits from the NIP
+                $
                 ''',
                 re.VERBOSE),
             'transformations': [
@@ -78,7 +82,7 @@ RECIPIENT_IDENTIFIER['default'] = RECIPIENT_IDENTIFIER['type_2']
 COUNTRY_CODE = {
     'required': False,
     'default': 'PL',
-    'validator': re.compile(r'([A-Z]{2})'),
+    'validator': re.compile(r'^([a-zA-Z]{2})$'),
     'transformations': [
         (str.upper, tuple())
     ],
@@ -89,7 +93,7 @@ COUNTRY_CODE = {
 IBAN_PL = {
     'required': True,
     'default': None,
-    'validator': re.compile(r'^(PL)?([0-9]{26})'),
+    'validator': re.compile(r'^(PL)?([0-9]{26})$'),
     'transformations': [
         (str, tuple())
     ],
@@ -98,7 +102,7 @@ IBAN_PL = {
                     'Other countries may require different validation patterns.\n'
                     'NOTE: Validates only one of the known IBAN formats and '
                     'is nowhere near to inclue the calulation of checksums'
-                    ' or other applicable validation steps. '),
+                    ' or other applicable validation steps. ')
 }
 
 AMOUNT_IN_POLSKIE_GROSZE = {
@@ -121,20 +125,22 @@ AMOUNT_IN_POLSKIE_GROSZE = {
 RECIPIENT_NAME = {
     'required': True,
     'default': None,
-    'validator': re.compile(r'([a-zA-Z0-9 ]{3,20})'),
+    'validator': re.compile(r'^([\w -.,/\(\)"\']{3,20})$'),
     'transformations': [
         (str.strip, tuple())
     ],
-    'description': ('The name of the recipient. Max. length 20 characters.'),
+    'description': ('The name of the recipient. Max. length 20 characters.')
 }
 
 
 PAYMENT_TITLE = {
     'required': True,
     'default': None,
-    'validator': re.compile(r'([a-zA-Z0-9 ]{3,30})'),
-    'transformations': None,
-    'description': 'TBD',
+    'validator': re.compile(r'^([\w -.,/\(\)"\']{3,32})$'),
+    'transformations': [
+        (str.strip, tuple())
+    ],
+    'description': 'Payment title. Max. length 32 characters.'
 }
 
 
