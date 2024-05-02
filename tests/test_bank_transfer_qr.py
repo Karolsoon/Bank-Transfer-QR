@@ -115,3 +115,21 @@ def test_can_save_code_to_file():
 def test_raises_value_error_when_save_directory_not_exists():
     pass
 
+
+
+# Transformations
+
+def test_transformation_raises_type_error_when_input_is_not_a_list():
+    pass
+
+
+def test_transformation_raises_value_error_when_first_item_is_not_callable():
+    pass
+
+
+def test_transformation_raises_transformationerror_upon_failure():
+    pass
+
+
+def test_transformation_raises_type_error_when_transformation_item_is_not_tuple():
+    pass
