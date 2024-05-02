@@ -62,15 +62,18 @@ RECIPIENT_IDENTIFIER = {
             'required': False,
             'validator': re.compile( # Only relevant if provided, can be empty
                 r'''
-                ^
-                (16)?   # Optional for systems that operate with 12 digit NIPs
-                (\d{3}) # 3 digits from the NIP
+                (
+                    ^16\d{3} # Optional for systems that operate with 12 digit NIPs
+                    |   
+                    ^\d{3}     # 3 digits from the NIP
+                )
                 (-)?    # Separator, optional
                 (\d{3}) # 3 digits from the NIP
                 (-)?    # Separator, optional
                 (\d{2}) # 2 digits from the NIP
                 (-)?    # Separator, optional
                 (\d{2}) # 2 digits from the NIP
+                $
                 ''',
                 re.VERBOSE),
             'validation_exception': RecipientIdentifierValidationError,

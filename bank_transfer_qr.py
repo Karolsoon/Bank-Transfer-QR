@@ -1,5 +1,3 @@
-import re
-
 import segno
 
 from src.field_definitions import (
@@ -11,6 +9,7 @@ from src.field_definitions import (
     RECIPIENT_NAME,
     TRANSFER_TITLE
 )
+
 
 class QR:
 
@@ -61,8 +60,12 @@ class QR:
         pass
 
     @staticmethod
-    def _validate_one(value: str, validator: re.Pattern):
-        pass
+    def _validate_one(value: str, definition: dict, field_name: str):
+        validation_exception = definition['validation_exception']
+        validator = definition['validator']
+        if not validator.search(value):
+            raise validation_exception(f'Incorrect {field_name} format')
+
 
     @staticmethod
     def _transform_one(

@@ -60,44 +60,48 @@ def test_can_create_qr_instance_with_all_parameters():
 
 
 @pytest.mark.parametrize(
-    argnames='value,definition',
+    argnames='value,definition,field_name',
     argvalues=[
-        ('123-123-12-12', RECIPIENT_IDENTIFIER),
-        ('PL01234567890123456789012345', IBAN_PL),
-        ('PL', COUNTRY_CODE),
-        ('Bob Smith', RECIPIENT_NAME),
-        ('000123', AMOUNT_IN_POLSKIE_GROSZE),
-        ('FV 2024/11/12-0006', TRANSFER_TITLE)
+        ('123-123-12-12', RECIPIENT_IDENTIFIER['type_2'], 'Recipient Identifier'),
+        ('PL01234567890123456789012345', IBAN_PL, 'IBAN'),
+        ('PL', COUNTRY_CODE, 'Country Code'),
+        ('Bob Smith', RECIPIENT_NAME, 'Recipient Name'),
+        ('000123', AMOUNT_IN_POLSKIE_GROSZE, 'Amount'),
+        ('FV 2024/11/12-0006', TRANSFER_TITLE, 'Transfer Title')
     ]
 )
 def test_validate_one_method_correctly_uses_arguments(
         value: str,
         definition: dict,
+        field_name: str,
         qr_instance: QR):
     try:
-        qr_instance._validate_one(value, definition)
+        qr_instance._validate_one(value, definition, field_name)
     except ValidationError:
         pytest.fail('Validation in _validate_one() failed but should pass')
     except Exception:
-        pytest.fail('An exception was raised while processing _validate_one()')    
+        pytest.fail('An exception was raised while processing _validate_one()')
 
 
 @pytest.mark.parametrize(
-    argnames='value,definition',
+    argnames='value,definition,field_name',
     argvalues=[
-        ('123-123-12-12', RECIPIENT_IDENTIFIER),
-        ('PL01234567890123456789012345', IBAN_PL),
-        ('PL', COUNTRY_CODE),
-        ('Bob Smith', RECIPIENT_NAME),
-        ('000123', AMOUNT_IN_POLSKIE_GROSZE),
-        ('FV 2024/11/12-0006', TRANSFER_TITLE)
+        ('123-123-12-12-12-12', RECIPIENT_IDENTIFIER['type_2'], 'Recipient Identifier'),
+        ('GB01234567890123456789012345', IBAN_PL, 'IBAN'),
+        ('16', COUNTRY_CODE, 'Country Code'),
+        ('Bob Smith ************', RECIPIENT_NAME, 'Recipient Name'),
+        ('0001234', AMOUNT_IN_POLSKIE_GROSZE, 'Amount'),
+        ('FV', TRANSFER_TITLE, 'Transfer Title')
     ]
 )
 def test_validate_one_raises_relevant_validation_error_when_validation_failed(
-        value,
-        definition,
-        qr_instance):
-    pass
+        value: str,
+        definition: dict,
+        field_name: str,
+        qr_instance: QR):
+    expected_exception = definition['validation_exception']
+    with pytest.raises(expected_exception=expected_exception):
+        qr_instance._validate_one(value, definition, field_name)
 
 
 def test_qr_text_format_of_qr_instance():
