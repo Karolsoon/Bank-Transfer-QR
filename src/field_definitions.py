@@ -39,7 +39,7 @@ RECIPIENT_IDENTIFIER = {
             'validator': re.compile(
                 r'''
                 (
-                    ^16\d{3} # Optional for systems that operate with 12 digit NIPs
+                    ^16\d{3} # Optional, some systems operate with 12 digit NIPs
                     |   
                     ^\d{3}     # 3 digits from the NIP
                 )
@@ -63,7 +63,7 @@ RECIPIENT_IDENTIFIER = {
             'validator': re.compile( # Only relevant if provided, can be empty
                 r'''
                 (
-                    ^16\d{3} # Optional for systems that operate with 12 digit NIPs
+                    ^16\d{3} # Optional, some systems operate with 12 digit NIPs
                     |   
                     ^\d{3}     # 3 digits from the NIP
                 )
@@ -144,7 +144,9 @@ RECIPIENT_NAME = {
     'validator': re.compile(r'^([\w -.,/\(\)"\']{3,20})$'),
     'validation_exception': RecipientNameValidationError,
     'transformations': [
-        (str.strip, tuple())
+        (str.strip, tuple()),
+        (str.split, tuple()),
+        (' '.join, tuple())
     ],
     'description': ('The name of the recipient. Max. length 20 characters.')
 }
@@ -156,7 +158,9 @@ TRANSFER_TITLE = {
     'validator': re.compile(r'^([\w -.,/\(\)"\']{3,32})$'),
     'validation_exception': TransferTitleValidationError,
     'transformations': [
-        (str.strip, tuple())
+        (str.strip, tuple()),
+        (str.split, tuple()),
+        (' '.join, tuple())
     ],
     'description': 'Transfer title. Max. length 32 characters.'
 }
