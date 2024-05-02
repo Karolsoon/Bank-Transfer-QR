@@ -1,6 +1,5 @@
 import re
 
-from src import validators
 
 QR_TEXT_FORMAT = ('{recipient_identifier}'
             '{separator}'
