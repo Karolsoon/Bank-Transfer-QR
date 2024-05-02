@@ -14,7 +14,9 @@ from src.field_definitions import (
         argnames='input_value,expected',
         argvalues=[
             ('123-123-12-12', '123-123-12-12'),
-            (1231231212, '1231231212')
+            (1231231212, '1231231212'),
+            ('    1231231212', '1231231212'),
+            ('   123   123 12-12', '12312312-12')
         ]
 )
 def test_recipient_identifier_transformation_is_executable(input_value, expected):
@@ -29,9 +31,9 @@ def test_recipient_identifier_transformation_is_executable(input_value, expected
 @pytest.mark.parametrize(
         argnames='input_value,expected',
         argvalues=[
-            ('pl', 'PL'),
-            ('pL', 'PL'),
-            ('p6', 'P6')
+            (' pl  ', 'PL'),
+            ('pL   ', 'PL'),
+            ('\n\np6     ', 'P6')
         ]
 )
 def test_country_code_transformation_is_executable(input_value, expected):
@@ -47,7 +49,9 @@ def test_country_code_transformation_is_executable(input_value, expected):
         argnames='input_value,expected',
         argvalues=[
             ('PL01234567890123456789012345', 'PL01234567890123456789012345'),
-            (1234567890123456789012345, '1234567890123456789012345')
+            (1234567890123456789012345, '1234567890123456789012345'),
+            (' PL01234567890123456789012345   ', 'PL01234567890123456789012345')
+
         ]
 )
 def test_iban_transformation_is_executable(input_value, expected):
@@ -70,7 +74,8 @@ def test_iban_transformation_is_executable(input_value, expected):
             (777.88, '077788'),
             ('0', '000000'),
             (0, '000000'),
-            (0.0, '000000')
+            (0.0, '000000'),
+            ('  1111    ', '001111')
         ]
 )
 def test_amount_transformation_is_executable(input_value, expected):

@@ -54,7 +54,10 @@ RECIPIENT_IDENTIFIER = {
                 re.VERBOSE),
             'validation_exception': RecipientIdentifierValidationError,
             'transformations': [
-                (str, tuple())
+                (str, tuple()),
+                (str.strip, tuple()),
+                (str.split, tuple()),
+                (''.join, tuple())
             ],
             'default': None
         },
@@ -78,7 +81,10 @@ RECIPIENT_IDENTIFIER = {
                 re.VERBOSE),
             'validation_exception': RecipientIdentifierValidationError,
             'transformations': [
-                (str, tuple())
+                (str, tuple()),
+                (str.strip, tuple()),
+                (str.split, tuple()),
+                (''.join, tuple())
             ],
             'default': ''
         },
@@ -98,6 +104,9 @@ COUNTRY_CODE = {
     'validator': re.compile(r'^([a-zA-Z]{2})$'),
     'validation_exception': CountryCodeValidationError,
     'transformations': [
+        (str.strip, tuple()),
+        (str.split, tuple()),
+        (' '.join, tuple()),
         (str.upper, tuple())
     ],
     'description': 'ISO 3166-2. Two uppercase letters country code'
@@ -110,7 +119,10 @@ IBAN_PL = {
     'validator': re.compile(r'^(PL)?([0-9]{26})$'),
     'validation_exception': IBANValidationError,
     'transformations': [
-        (str, tuple())
+        (str, tuple()),
+        (str.strip, tuple()),
+        (str.split, tuple()),
+        (' '.join, tuple())
     ],
     'description': ('Internatinal Banking Account Number. '
                     'This implementation is specific for Poland.\n'
@@ -127,6 +139,9 @@ AMOUNT_IN_POLSKIE_GROSZE = {
     'validation_exception': AmountValidationError,
     'transformations': [
         (str, tuple()),
+        (str.strip, tuple()),
+        (str.split, tuple()),
+        (' '.join, tuple()),
         (str.replace, (',', '')),
         (str.replace, ('.', '')),
         (str.rjust, (6, '0'))
