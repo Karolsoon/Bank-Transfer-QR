@@ -154,7 +154,7 @@ class QR:
         self._set_qr_text()
 
     def _set_qr_text(self):
-        self._qr_text = self._qr_text.format(
+        self._qr_text = self.__qr_text_format.format(
             separator=self.__separator,
             **self.data)
 
@@ -237,9 +237,3 @@ class QR:
 
     def __get_transformations(self, definition: dict):
         return definition.get('transformations')
-
-q = QR('PL01234567890123456789012345', 'Bob Smith', 'Payment title', amount='123.00')
-
-from pprint import pprint
-pprint(q.data)
-print(q._qr_text)
