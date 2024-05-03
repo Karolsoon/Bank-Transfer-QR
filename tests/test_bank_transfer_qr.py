@@ -24,9 +24,9 @@ def qr_instance():
 @pytest.mark.parametrize(
     argnames='iban,recipient_name,payment_title',
     argvalues=[
-        ('1234567890123456789012345', 'Bob Smith', 'Payment title'),
-        ('1234567890123456789012345', 'Bob ąąąśśśććććłłłóóó', 'Payment tłłóśąęć'),
-        ('PL1234567890123456789012345', 'Bob Smith', 'Payment title')
+        ('01234567890123456789012345', 'Bob Smith', 'Payment title'),
+        ('01234567890123456789012345', 'Bob ąąąśśśććććłłłóóó', 'Payment tłłóśąęć'),
+        ('PL01234567890123456789012345', 'Bob Smith', 'Payment title')
     ]
 )
 def test_can_create_qr_instance_with_minimal_set_of_parameters(
@@ -44,7 +44,7 @@ def test_can_create_qr_instance_with_minimal_set_of_parameters(
 def test_can_create_qr_instance_with_all_parameters():
     recipient_identifier = '123-123-12-12'
     country_code = 'PL'
-    iban = 'PL1234567890123456789012345'
+    iban = 'PL01234567890123456789012345'
     amount = '000123'
     recipient_name = 'Bob Smith'
     transfer_title = 'Payment title'
@@ -140,34 +140,22 @@ def test_transformation_raises_type_error_when_input_is_wrong_type(
         qr_instance._transform_one(field_name, value)
 
 
-
-@pytest.mark.parametrize(
-    argnames='value,field_name',
-    argvalues=[
-        ('123-123-12-12', 'recipient_identifier'),
-        ('PL01234567890123456789012345', 'iban'),
-        ('PL', 'country_code'),
-        ('Bob Smith', 'recipient_name'),
-        ('000123', 'amount'),
-        ('FV 2024/11/12-0006', 'transfer_title')
-    ]
-)
-def test_transformation_raises_type_error_when_first_item_is_not_callable(
-        value,
-        field_name: str,
-        qr_instance: QR
-        ):
+def test_transformation_raises_type_error_when_first_item_is_not_callable():
     # Replace existing transformation
-    qr_instance.definitions[field_name]['transformations'] = [
-            (dict(), tuple())
-        ]
+    qr = QR('01234567890123456789012345', 'Bob Smith', 'Payment title')
+    for field, definition in qr.definitions.items():
+        definition['transformations'] = [
+                (dict(), tuple())
+            ]
 
-    with pytest.raises(TypeError) as exc_info:
-        qr_instance._transform_one(field_name, value)
-    print(exc_info)
-    assert exc_info.match(
-        'Transformation must be callable. '
-        f'Please review transformations for "{field_name}"')
+        with pytest.raises(TypeError) as exc_info:
+            qr._QR__validate_transformations_are_callable(
+                definition['transformations'],
+                field_name=field
+            )
+        assert exc_info.match(
+            'Transformation must be callable. '
+            f'Please review transformations for "{field}"')
 
 
 def test_transformation_raises_transformationerror_upon_failure():

@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import segno
 
 from src.field_definitions import (
@@ -28,7 +30,7 @@ class QR:
 
     # Formating requirements and definitions
     definitions = {
-        'recipient_identifier': RECIPIENT_IDENTIFIER,
+        'recipient_identifier': RECIPIENT_IDENTIFIER['type_2'],
         'country_code': COUNTRY_CODE,
         'iban': IBAN_PL,
         'amount': AMOUNT_IN_POLSKIE_GROSZE,
@@ -44,35 +46,59 @@ class QR:
             amount: int|str=definitions['amount']['default'],
             country_code: str=definitions['country_code']['default'],
             recipient_identifier: str|int=definitions['recipient_identifier'
-                                                  ]['type_2']['default']
+                                                  ]['default']
             ):
-        self.iban = iban
-        self.recipient_name = recipient_name
-        self.transfer_title = transfer_title
-        self.amount = amount
-        self.country_code = country_code
-        self.recipient_identifier = recipient_identifier
+
+        self.data = {
+            'iban': None,
+            'recipient_name': None,
+            'transfer_title': None,
+            'amount': None,
+            'country_code': None,
+            'recipient_identifier': None
+        }
+        self._process(
+            iban=iban,
+            recipient_name=recipient_name,
+            transfer_title=transfer_title,
+            amount=amount,
+            country_code=country_code,
+            recipient_identifier=recipient_identifier
+        )
 
     def make(self, size: dict[str, int|float]) -> None:
         pass
 
+    def _process(self, **kwargs):
+        data = self._transform(**kwargs)
+        self._set_data(data)
+        self._validate()
+
     def _validate(self) -> None:
-        pass
+        for field_name, value in self.data.items():
+            self._validate_one(
+                value=value,
+                definition=self.__get_definition(field_name),
+                field_name=field_name
+            )
+
 
     def _validate_one(self, value: str, definition: dict, field_name: str):
         validation_exception = definition['validation_exception']
         validator = definition['validator']
-        if not validator.search(value):
-            raise validation_exception(f'Incorrect {field_name} format')
+        if value:
+            if not validator.search(value):
+                raise validation_exception(f'Incorrect {field_name} format')
 
     def _transform(self, **kwargs):
+        data = {}
         for field_name, value in kwargs.items():
             transformed = self._transform_one(
                 field_name=field_name,
                 value=value
             )
-            # TODO: UGLY, not readable.
-            self.__setattr__(field_name,transformed)
+            data[field_name] = transformed
+        return data
 
     def _transform_one(
             self,
@@ -91,6 +117,9 @@ class QR:
             func, args = t
             item = func(item, *args)
         return item
+
+    def _set_data(self, data: dict):
+        self.data = deepcopy(data)
 
     def __validate_transformations_are_callable(
             self,
