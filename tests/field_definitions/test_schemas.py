@@ -50,6 +50,10 @@ def field_schema():
             'type': bool,
             'required': True
         },
+        'input_types': {
+            'type': tuple,
+            'required': True
+        },
         'validator': {
             'type': re.Pattern,
             'required': True

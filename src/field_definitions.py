@@ -36,6 +36,7 @@ SEPARATOR = '|' # Not negiotiable?
 RECIPIENT_IDENTIFIER = {
         'type_1': {
             'required': True,
+            'input_types': (str, int),
             'validator': re.compile(
                 r'''
                 (
@@ -63,6 +64,7 @@ RECIPIENT_IDENTIFIER = {
         },
         'type_2': {
             'required': False,
+            'input_types': (str, int),
             'validator': re.compile( # Only relevant if provided, can be empty
                 r'''
                 (
@@ -101,6 +103,7 @@ RECIPIENT_IDENTIFIER['default'] = RECIPIENT_IDENTIFIER['type_2']
 COUNTRY_CODE = {
     'required': False,
     'default': 'PL',
+    'input_types': (str,),
     'validator': re.compile(r'^([a-zA-Z]{2})$'),
     'validation_exception': CountryCodeValidationError,
     'transformations': [
@@ -116,6 +119,7 @@ COUNTRY_CODE = {
 IBAN_PL = {
     'required': True,
     'default': None,
+    'input_types': (str, int),
     'validator': re.compile(r'^(PL)?([0-9]{26})$'),
     'validation_exception': IBANValidationError,
     'transformations': [
@@ -135,6 +139,7 @@ IBAN_PL = {
 AMOUNT_IN_POLSKIE_GROSZE = {
     'required': True,
     'default': '000000',
+    'input_types': (str, int, float),
     'validator': re.compile(r'^(\d{6})$'),
     'validation_exception': AmountValidationError,
     'transformations': [
@@ -156,6 +161,7 @@ AMOUNT_IN_POLSKIE_GROSZE = {
 RECIPIENT_NAME = {
     'required': True,
     'default': None,
+    'input_types': (str,),
     'validator': re.compile(r'^([\w -.,/\(\)"\']{3,20})$'),
     'validation_exception': RecipientNameValidationError,
     'transformations': [
@@ -170,6 +176,7 @@ RECIPIENT_NAME = {
 TRANSFER_TITLE = {
     'required': True,
     'default': None,
+    'input_types': (str,),
     'validator': re.compile(r'^([\w -.,/\(\)"\']{3,32})$'),
     'validation_exception': TransferTitleValidationError,
     'transformations': [
