@@ -57,6 +57,63 @@ class QR:
             recipient_identifier: str|int=definitions['recipient_identifier'
                                                   ]['default']
             ):
+        """
+        # Bank-Transfer-QR
+        Creates an instance of a Bank Transfer QR code accepted
+        by banking applications in Poland.
+
+        #### For detailed descriptions check out the below dosctring or use `QR.info()`
+
+        ### iban (required)
+
+        `iban` - the IBAN account number of the recipient. Can be optionally
+        prefixed with 'PL'. Format: '(PL)01234567890123456789012345', no spaces.
+
+        ### recipient_name (required)
+        `recipient_name` - max. 20 characters. Accepts letters, numbers,
+        hypthens, underscores, dots and spaces.
+
+        ### transfer_title (required)
+        `transfer_title` - max. 32 characters long. Accepts letters, numbers,
+        hyphens, underscores, dots and spaces.
+
+        ### amount (optional)
+
+        Default: `'000000'`
+
+        `amount` - the amount to be transferred, represented as a 6-digit str.
+        The last 2 digits (on the right) is the amount of Polski Grosz
+        while the first 4 digits represent the amount of Polski Złoty.
+        Example:
+        #### `'010999'` equals `109,99 zł`
+        If instead an `int` is provided, the value will be translated into
+        a 6-digit str.
+        Example:
+        #### `int(123)` equals `'000123'` equals `1,23 zł`
+        #### `float(123.0)` equals `'001230'` equals `12,30zł`
+
+        If not provided, the default value of `'000000'` will be used, which
+        informs the banking application, that the amount is to be specified
+        manually within the application itself.
+
+        The 6-digit notation is highly engouraged to reduce ambiguity!
+
+        ### country_code (optional)
+
+        Default: `'PL'`
+
+        `country_code` - The country code of the recipients Bank Account. 
+        Defaults to `'PL'`. Providing other values may not work due to local
+        law enforcements or other regulations applicable.
+
+        ### recipient_identifier (optional)
+
+        Default: `''`
+
+        `recipient_identifier` - The NIP (Tax identification number). Applicable
+        only for institutional recipients, that is: not individuals.
+
+        """
 
         self._qr_text = QR_TEXT_FORMAT
         self.data = {
@@ -180,3 +237,9 @@ class QR:
 
     def __get_transformations(self, definition: dict):
         return definition.get('transformations')
+
+q = QR('PL01234567890123456789012345', 'Bob Smith', 'Payment title', amount='123.00')
+
+from pprint import pprint
+pprint(q.data)
+print(q._qr_text)

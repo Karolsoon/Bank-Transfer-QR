@@ -158,6 +158,16 @@ def test_transformation_raises_type_error_when_first_item_is_not_callable():
             f'Please review transformations for "{field}"')
 
 
+# QR text validation
+
+def test_with_length_above_160_characters_raises_validation_error():
+    pass
+
+
+def test_qr_text_with_length_below_160_characters_does_not_raise_error():
+    pass
+
+
 def test_transformation_raises_transformationerror_upon_failure():
     pass
 
