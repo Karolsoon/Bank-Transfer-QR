@@ -1,4 +1,5 @@
 import re
+from dataclasses import dataclass
 
 from src.exceptions import (
     RecipientIdentifierValidationError,
@@ -14,23 +15,35 @@ QR_TEXT_FORMAT = ('{recipient_identifier}'
             '{separator}'
             '{country_code}'
             '{separator}'
-            '{IBAN}'
+            '{iban}'
             '{separator}'
-            '{amount_in_polskie_grosze}'
+            '{amount}'
             '{separator}'
             '{recipient_name}'
             '{separator}'
-            '{payment_title}'
+            '{transfer_title}'
             '{separator}'
-            '{reserved_1}'
+            '{reserve_1}'
             '{separator}'
-            '{reserved_2}'
+            '{reserve_2}'
             '{separator}'
-            '{reserved_3}'
+            '{reserve_3}'
 )
 
 
 SEPARATOR = '|' # Not negiotiable?
+
+
+# TODO: Maybe a definition should be a dataclass for readability?
+@dataclass
+class Field_Definition:
+    required: bool
+    input_types: tuple[type]
+    validator: re.Pattern
+    validation_exception: Exception
+    transformations: list[tuple[callable, tuple[None|int|str]]]
+    default: str|None
+    description: str
 
 
 RECIPIENT_IDENTIFIER = {
@@ -191,6 +204,12 @@ TRANSFER_TITLE = {
 RESERVE_1 = {
     'required': True,
     'default': '',
+    'input_types': (str,),
+    'validator': None,
+    'validation_exception': ValueError,
+    'transformations': [
+        (str, tuple())
+    ],
     'description': 'Unused.'
 }
 
@@ -198,6 +217,12 @@ RESERVE_1 = {
 RESERVE_2 = {
     'required': True,
     'default': '',
+    'input_types': (str,),
+    'validator': None,
+    'validation_exception': ValueError,
+    'transformations': [
+        (str, tuple())
+    ],
     'description': 'Unused.'
 }
 
@@ -205,5 +230,11 @@ RESERVE_2 = {
 RESERVE_3 = {
     'required': True,
     'default': '',
+    'input_types': (str,),
+    'validator': None,
+    'validation_exception': ValueError,
+    'transformations': [
+        (str, tuple())
+    ],
     'description': 'Unused.'
 }

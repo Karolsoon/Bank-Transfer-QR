@@ -9,7 +9,11 @@ from src.field_definitions import (
     IBAN_PL,
     AMOUNT_IN_POLSKIE_GROSZE,
     RECIPIENT_NAME,
-    TRANSFER_TITLE
+    TRANSFER_TITLE,
+    SEPARATOR,
+    RESERVE_1,
+    RESERVE_2,
+    RESERVE_3
 )
 
 
@@ -18,6 +22,7 @@ class QR:
     # QR code requirements
     __encoding = 'UTF-8'
     __error_correction = 'L'
+    __qr_Version = 7
     __min_size_px = {
         'width': 250,
         'height': 250
@@ -27,6 +32,7 @@ class QR:
         'height': 1.8
     }
     __qr_text_format = QR_TEXT_FORMAT
+    __separator = SEPARATOR
 
     # Formating requirements and definitions
     definitions = {
@@ -35,7 +41,10 @@ class QR:
         'iban': IBAN_PL,
         'amount': AMOUNT_IN_POLSKIE_GROSZE,
         'recipient_name': RECIPIENT_NAME,
-        'transfer_title': TRANSFER_TITLE
+        'transfer_title': TRANSFER_TITLE,
+        'reserve_1': RESERVE_1,
+        'reserve_2': RESERVE_2,
+        'reserve_3': RESERVE_3
     }
 
     def __init__(
@@ -49,14 +58,19 @@ class QR:
                                                   ]['default']
             ):
 
+        self._qr_text = QR_TEXT_FORMAT
         self.data = {
             'iban': None,
             'recipient_name': None,
             'transfer_title': None,
             'amount': None,
             'country_code': None,
-            'recipient_identifier': None
+            'recipient_identifier': None,
+            'reserve_1': '',
+            'reserve_2': '',
+            'reserve_3': ''
         }
+
         self._process(
             iban=iban,
             recipient_name=recipient_name,
@@ -66,13 +80,26 @@ class QR:
             recipient_identifier=recipient_identifier
         )
 
-    def make(self, size: dict[str, int|float]) -> None:
+    def show(self):#, size: dict[str, int|float]) -> None:
         pass
+        # q = segno.make(
+        #     content=self._qr_text,
+        #     error=self.__error_correction,
+        #     version=self.__qr_Version,
+        #     encoding=self.__encoding
+        # )
+        # q.show()
 
     def _process(self, **kwargs):
         data = self._transform(**kwargs)
         self._set_data(data)
         self._validate()
+        self._set_qr_text()
+
+    def _set_qr_text(self):
+        self._qr_text = self._qr_text.format(
+            separator=self.__separator,
+            **self.data)
 
     def _validate(self) -> None:
         for field_name, value in self.data.items():
@@ -86,7 +113,7 @@ class QR:
     def _validate_one(self, value: str, definition: dict, field_name: str):
         validation_exception = definition['validation_exception']
         validator = definition['validator']
-        if value:
+        if value and validator:
             if not validator.search(value):
                 raise validation_exception(f'Incorrect {field_name} format')
 
@@ -119,7 +146,7 @@ class QR:
         return item
 
     def _set_data(self, data: dict):
-        self.data = deepcopy(data)
+        self.data.update(data)
 
     def __validate_transformations_are_callable(
             self,
