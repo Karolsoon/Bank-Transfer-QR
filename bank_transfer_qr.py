@@ -59,17 +59,68 @@ class QR:
     def _validate(self) -> None:
         pass
 
-    @staticmethod
-    def _validate_one(value: str, definition: dict, field_name: str):
+    def _validate_one(self, value: str, definition: dict, field_name: str):
         validation_exception = definition['validation_exception']
         validator = definition['validator']
         if not validator.search(value):
             raise validation_exception(f'Incorrect {field_name} format')
 
+    def _transform(self, **kwargs):
+        for field_name, value in kwargs.items():
+            transformed = self._transform_one(
+                field_name=field_name,
+                value=value
+            )
+            # TODO: UGLY, not readable.
+            self.__setattr__(field_name,transformed)
 
-    @staticmethod
     def _transform_one(
-            value: str|int,
-            transformations: list[tuple[callable, tuple]]
+            self,
+            field_name: str,
+            value: str|int|float
             ) -> str:
-        pass
+        definition = self.__get_definition(field_name)
+        transformations = self.__get_transformations(definition)
+        self.__validate_transformations_are_callable(
+            transformations,
+            field_name
+        )
+        self.__validate_input_type(value, definition, field_name)
+        item = value
+        for t in transformations:
+            func, args = t
+            item = func(item, *args)
+        return item
+
+    def __validate_transformations_are_callable(
+            self,
+            transformations: list[tuple[callable, tuple[str|int|None]]],
+            field_name: str):
+        for t in transformations:
+            if not callable(t[0]):
+                raise TypeError(
+                    'Transformation must be callable. '
+                    f'Please review transformations for "{field_name}"'
+                )
+
+    def __validate_input_type(
+            self,
+            input_value,
+            definition: dict,
+            field_name: str):
+        in_typ = definition['input_types']
+        if not isinstance(input_value, in_typ):
+            msg = (
+                f'"{field_name}" value must be one of {in_typ}, '
+                f'not {input_value.__class__.__name__}'
+            )
+            raise TypeError(msg)
+
+    def __get_definition(self, field_name: str):
+        if definition := self.definitions.get(field_name):
+            return definition
+        raise AttributeError(
+            f'Unknown parameter passed into constructor: {field_name}')
+
+    def __get_transformations(self, definition: dict):
+        return definition.get('transformations')

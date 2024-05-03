@@ -119,12 +119,55 @@ def test_raises_value_error_when_save_directory_not_exists():
 
 # Transformations
 
-def test_transformation_raises_type_error_when_input_is_not_a_list():
-    pass
+@pytest.mark.parametrize(
+    argnames='value,definition,field_name',
+    argvalues=[
+        (['123-123-12-12'], RECIPIENT_IDENTIFIER['type_2'], 'recipient_identifier'),
+        (1234567890123456789012345.0, IBAN_PL, 'iban'),
+        (('pl',), COUNTRY_CODE, 'country_code'),
+        (['Bob', 'Smith'], RECIPIENT_NAME, 'recipient_name'),
+        ({'amount': '0001234'}, AMOUNT_IN_POLSKIE_GROSZE, 'amount'),
+        (20240101, TRANSFER_TITLE, 'transfer_title')
+    ]
+)
+def test_transformation_raises_type_error_when_input_is_wrong_type(
+        value,
+        definition: dict,
+        field_name: str,
+        qr_instance: QR
+        ):
+    with pytest.raises(TypeError):
+        qr_instance._transform_one(field_name, value)
 
 
-def test_transformation_raises_value_error_when_first_item_is_not_callable():
-    pass
+
+@pytest.mark.parametrize(
+    argnames='value,field_name',
+    argvalues=[
+        ('123-123-12-12', 'recipient_identifier'),
+        ('PL01234567890123456789012345', 'iban'),
+        ('PL', 'country_code'),
+        ('Bob Smith', 'recipient_name'),
+        ('000123', 'amount'),
+        ('FV 2024/11/12-0006', 'transfer_title')
+    ]
+)
+def test_transformation_raises_type_error_when_first_item_is_not_callable(
+        value,
+        field_name: str,
+        qr_instance: QR
+        ):
+    # Replace existing transformation
+    qr_instance.definitions[field_name]['transformations'] = [
+            (dict(), tuple())
+        ]
+
+    with pytest.raises(TypeError) as exc_info:
+        qr_instance._transform_one(field_name, value)
+    print(exc_info)
+    assert exc_info.match(
+        'Transformation must be callable. '
+        f'Please review transformations for "{field_name}"')
 
 
 def test_transformation_raises_transformationerror_upon_failure():
