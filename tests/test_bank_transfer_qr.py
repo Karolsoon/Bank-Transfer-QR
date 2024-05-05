@@ -198,11 +198,3 @@ def test_qr_text_with_length_equal_to_160_characters_does_not_raise_error(qr_ins
     qr_instance._set_qr_text()
 
     assert len(qr_instance._qr_text) == 160
-
-
-def test_transformation_raises_transformationerror_upon_failure():
-    pass
-
-
-def test_transformation_raises_type_error_when_transformation_item_is_not_tuple():
-    pass
