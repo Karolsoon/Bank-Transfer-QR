@@ -149,8 +149,8 @@ class QR:
         Displays the QR code.
         """
         self._segno_qr_object.show(
-            scale=5,
-            border=0
+            scale=6,
+            border=1
         )
 
     def get(self, file_type: str='png') -> io.BytesIO:
@@ -210,15 +210,15 @@ class QR:
         self._segno_qr_object.save(
             self._png,
             kind='png',
-            scale=8,
-            border=0
+            scale=6,
+            border=1
         )
 
         self._segno_qr_object.save(
             self._svg,
             kind='svg',
-            scale=8,
-            border=0,
+            scale=6,
+            border=1,
             draw_transparent=True
         )
 
