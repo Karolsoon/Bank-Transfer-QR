@@ -104,11 +104,17 @@ RECIPIENT_IDENTIFIER = {
                 (str.split, tuple()),
                 (''.join, tuple())
             ],
-            'default': ''
+            'default': '',
+            'description': ('Recipient identifier.\n'
+                            'Type 1: Institutional recipient,\n'
+                            'Type 2: Individual recipient (Non-Institutional).\n'
+                            'Value is always the NIP of the recipient.\n'
+                            'Mandatory for type 1 recipients.\n'
+                            'Optional for type 2 recipients and can be left empty.')
         },
         'description': ('Recipient identifier.\n'
                         'Type 1: Institutional recipient,\n'
-                        'Type 2: Individual recipient (Non-Institutional).\n\n'
+                        'Type 2: Individual recipient (Non-Institutional).\n'
                         'Value is always the NIP of the recipient.\n'
                         'Mandatory for type 1 recipients.\n'
                         'Optional for type 2 recipients and can be left empty.')

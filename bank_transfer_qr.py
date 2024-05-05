@@ -155,8 +155,8 @@ class QR:
 
     def get(self, file_type: str='png') -> io.BytesIO:
         """
-        Returns a io.BytesIO stream of the selected file type.
-        Defaults to "png".
+        Returns an io.BytesIO object representation of a QR code.
+        Output file type can be "png" or "svg". Defaults to "png".
         """
         if file_type.lower() == 'png':
             return self._png
@@ -166,18 +166,33 @@ class QR:
             raise ValueError('Only "png" and "svg" are supported.')
 
     def save(self, path: str, file_type: str='png') -> None:
+        """
+        Saves the QR code in the desired format
+        under the specified filename/path.
+        """
         with open(path + '.' + file_type.lower(), mode='bw') as f:
             f.write(self.get(file_type).getvalue())
 
+    @classmethod
+    def info(cls) -> None:
+        """
+        Prints out the descriptions about the input fields to.
+        """
+        for field, definition in cls.definitions.items():
+            if not field.startswith('reserve'):
+                print(f'* {field} *')
+                print(definition['description'])
+                print('\n')
 
-    def _process(self, **kwargs):
+
+    def _process(self, **kwargs) -> None:
         data = self._transform(**kwargs)
         self._set_data(data)
         self._validate()
         self._set_qr_text()
         self._make()
 
-    def _make(self):
+    def _make(self) -> None:
         self._segno_qr_object = segno.make(
             content=self._qr_text,
             error=self.__error_correction,
@@ -200,7 +215,7 @@ class QR:
             draw_transparent=True
         )
 
-    def _set_qr_text(self):
+    def _set_qr_text(self) -> None:
         self._qr_text = self.__qr_text_format.format(
             separator=self.__separator,
             **self.data)
@@ -215,14 +230,22 @@ class QR:
             )
 
 
-    def _validate_one(self, value: str, definition: dict, field_name: str):
+    def _validate_one(
+            self,
+            value: str,
+            definition: dict,
+            field_name: str) -> None:
         validation_exception = definition['validation_exception']
         validator = definition['validator']
         if value and validator:
             if not validator.search(value):
                 raise validation_exception(f'Incorrect {field_name} format')
 
-    def _transform(self, **kwargs):
+    def _transform(self, **kwargs) -> str:
+        """
+        Applies transformations defined in the field definitions.
+        Returns the transformed value as an str.
+        """
         data = {}
         for field_name, value in kwargs.items():
             transformed = self._transform_one(
@@ -250,13 +273,13 @@ class QR:
             item = func(item, *args)
         return item
 
-    def _set_data(self, data: dict):
+    def _set_data(self, data: dict) -> None:
         self.data.update(data)
 
     def __validate_transformations_are_callable(
             self,
             transformations: list[tuple[callable, tuple[str|int|None]]],
-            field_name: str):
+            field_name: str) -> None:
         for t in transformations:
             if not callable(t[0]):
                 raise TypeError(
@@ -268,7 +291,7 @@ class QR:
             self,
             input_value,
             definition: dict,
-            field_name: str):
+            field_name: str) -> None:
         in_typ = definition['input_types']
         if not isinstance(input_value, in_typ):
             msg = (
@@ -277,16 +300,16 @@ class QR:
             )
             raise TypeError(msg)
 
-    def __get_definition(self, field_name: str):
+    def __get_definition(self, field_name: str) -> None:
         if definition := self.definitions.get(field_name):
             return definition
         raise AttributeError(
             f'Unknown parameter passed into constructor: {field_name}')
 
-    def __get_transformations(self, definition: dict):
+    def __get_transformations(self, definition: dict) -> None:
         return definition.get('transformations')
 
-    def __validate_qr_text_length(self):
+    def __validate_qr_text_length(self) -> None:
         if len(self._qr_text) > self.__max_qr_text_length:
             raise QRTextValidationError(
                 'The length of the underlying QR text exceeds '
