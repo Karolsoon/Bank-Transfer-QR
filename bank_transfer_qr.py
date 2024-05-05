@@ -25,7 +25,7 @@ class QR:
     # QR code requirements
     __encoding = 'UTF-8'
     __error_correction = 'L'
-    __qr_Version = 4
+    __qr_version = 4
     __min_size_px = {
         'width': 250,
         'height': 250
@@ -193,12 +193,19 @@ class QR:
         self._make()
 
     def _make(self) -> None:
-        self._segno_qr_object = segno.make(
-            content=self._qr_text,
-            error=self.__error_correction,
-            version=self.__qr_Version,
-            encoding=self.__encoding
-        )
+        version = self.__qr_version
+        while not self._segno_qr_object:
+            try:
+                self._segno_qr_object = segno.make(
+                    content=self._qr_text,
+                    error=self.__error_correction,
+                    version=version,
+                    encoding=self.__encoding
+                )
+            except segno.encoder.DataOverflowError as exc:
+                version += 1
+                if version > 6:
+                    raise exc
 
         self._segno_qr_object.save(
             self._png,
@@ -228,7 +235,6 @@ class QR:
                 definition=self.__get_definition(field_name),
                 field_name=field_name
             )
-
 
     def _validate_one(
             self,
