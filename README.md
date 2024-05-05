@@ -12,7 +12,7 @@ banking application.
 Implementation is based on [this recommendation](https://zbp.pl/getmedia/1d7fef90-d193-4a2d-a1c3-ffdf1b0e0649/2013-12-03_-_Rekomendacja_-_Standard_2D)
 and may not follow strict laws or other binding regulations.
 
-![QR Code Example](examples/example_bank_transfer_qrcode.png)
+![QR Code Example](https://github.com/Karolsoon/Bank-Transfer-QR/blob/main/examples/example_bank_transfer_qrcode.png?raw=true)
 
 ## Installation
 
