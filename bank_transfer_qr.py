@@ -1,7 +1,9 @@
+import io
 from copy import deepcopy
 
 import segno
 
+from src.exceptions import QRTextValidationError
 from src.field_definitions import (
     QR_TEXT_FORMAT,
     RECIPIENT_IDENTIFIER,
@@ -13,7 +15,8 @@ from src.field_definitions import (
     SEPARATOR,
     RESERVE_1,
     RESERVE_2,
-    RESERVE_3
+    RESERVE_3,
+    MAX_QR_TEXT_LENGTH
 )
 
 
@@ -22,7 +25,7 @@ class QR:
     # QR code requirements
     __encoding = 'UTF-8'
     __error_correction = 'L'
-    __qr_Version = 7
+    __qr_Version = 4
     __min_size_px = {
         'width': 250,
         'height': 250
@@ -33,18 +36,19 @@ class QR:
     }
     __qr_text_format = QR_TEXT_FORMAT
     __separator = SEPARATOR
+    __max_qr_text_length = MAX_QR_TEXT_LENGTH
 
     # Formating requirements and definitions
     definitions = {
-        'recipient_identifier': RECIPIENT_IDENTIFIER['type_2'],
-        'country_code': COUNTRY_CODE,
-        'iban': IBAN_PL,
-        'amount': AMOUNT_IN_POLSKIE_GROSZE,
-        'recipient_name': RECIPIENT_NAME,
-        'transfer_title': TRANSFER_TITLE,
-        'reserve_1': RESERVE_1,
-        'reserve_2': RESERVE_2,
-        'reserve_3': RESERVE_3
+        'recipient_identifier': deepcopy(RECIPIENT_IDENTIFIER['type_2']),
+        'country_code': deepcopy(COUNTRY_CODE),
+        'iban': deepcopy(IBAN_PL),
+        'amount': deepcopy(AMOUNT_IN_POLSKIE_GROSZE),
+        'recipient_name': deepcopy(RECIPIENT_NAME),
+        'transfer_title': deepcopy(TRANSFER_TITLE),
+        'reserve_1': deepcopy(RESERVE_1),
+        'reserve_2': deepcopy(RESERVE_2),
+        'reserve_3': deepcopy(RESERVE_3)
     }
 
     def __init__(
@@ -114,6 +118,9 @@ class QR:
         only for institutional recipients, that is: not individuals.
 
         """
+        self._segno_qr_object: segno.QRCode = None
+        self._png = io.BytesIO()
+        self._svg = io.BytesIO()
 
         self._qr_text = QR_TEXT_FORMAT
         self.data = {
@@ -137,26 +144,67 @@ class QR:
             recipient_identifier=recipient_identifier
         )
 
-    def show(self):#, size: dict[str, int|float]) -> None:
-        pass
-        # q = segno.make(
-        #     content=self._qr_text,
-        #     error=self.__error_correction,
-        #     version=self.__qr_Version,
-        #     encoding=self.__encoding
-        # )
-        # q.show()
+    def show(self) -> None:
+        """
+        Displays the QR code.
+        """
+        self._segno_qr_object.show(
+            scale=5,
+            border=0
+        )
+
+    def get(self, file_type: str='png') -> io.BytesIO:
+        """
+        Returns a io.BytesIO stream of the selected file type.
+        Defaults to "png".
+        """
+        if file_type.lower() == 'png':
+            return self._png
+        elif file_type.lower() == 'svg':
+            return self._svg
+        else:
+            raise ValueError('Only "png" and "svg" are supported.')
+
+    def save(self, path: str, file_type: str='png') -> None:
+        with open(path + '.' + file_type.lower(), mode='bw') as f:
+            f.write(self.get(file_type).getvalue())
+
 
     def _process(self, **kwargs):
         data = self._transform(**kwargs)
         self._set_data(data)
         self._validate()
         self._set_qr_text()
+        self._make()
+
+    def _make(self):
+        self._segno_qr_object = segno.make(
+            content=self._qr_text,
+            error=self.__error_correction,
+            version=self.__qr_Version,
+            encoding=self.__encoding
+        )
+
+        self._segno_qr_object.save(
+            self._png,
+            kind='png',
+            scale=8,
+            border=0
+        )
+
+        self._segno_qr_object.save(
+            self._svg,
+            kind='svg',
+            scale=8,
+            border=0,
+            draw_transparent=True
+        )
 
     def _set_qr_text(self):
         self._qr_text = self.__qr_text_format.format(
             separator=self.__separator,
             **self.data)
+        self.__validate_qr_text_length()
 
     def _validate(self) -> None:
         for field_name, value in self.data.items():
@@ -237,3 +285,10 @@ class QR:
 
     def __get_transformations(self, definition: dict):
         return definition.get('transformations')
+
+    def __validate_qr_text_length(self):
+        if len(self._qr_text) > self.__max_qr_text_length:
+            raise QRTextValidationError(
+                'The length of the underlying QR text exceeds '
+                'the allowed max length: '
+                f'{self.__max_qr_text_length} (is {len(self._qr_text)})')

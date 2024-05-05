@@ -1,14 +1,19 @@
+from copy import deepcopy
+
 import pytest
 
 from bank_transfer_qr import QR
-from src.exceptions import ValidationError
+from src.exceptions import BaseValidationError, QRTextValidationError
 from src.field_definitions import (
     RECIPIENT_IDENTIFIER,
     COUNTRY_CODE,
     IBAN_PL,
     AMOUNT_IN_POLSKIE_GROSZE,
     RECIPIENT_NAME,
-    TRANSFER_TITLE
+    TRANSFER_TITLE,
+    RESERVE_1,
+    RESERVE_2,
+    RESERVE_3
 )
 
 
@@ -19,6 +24,31 @@ def qr_instance():
         recipient_name='John Doe',
         transfer_title='Payment title'
     )
+
+
+@pytest.fixture(scope='function')
+def qr_with_incorrect_transformations():
+    class QR_with_bad_transformations(QR):
+        pass
+
+    QR_with_bad_transformations.definitions = {
+        'recipient_identifier': deepcopy(RECIPIENT_IDENTIFIER['type_2']),
+        'country_code': deepcopy(COUNTRY_CODE),
+        'iban': deepcopy(IBAN_PL),
+        'amount': deepcopy(AMOUNT_IN_POLSKIE_GROSZE),
+        'recipient_name': deepcopy(RECIPIENT_NAME),
+        'transfer_title': deepcopy(TRANSFER_TITLE),
+        'reserve_1': deepcopy(RESERVE_1),
+        'reserve_2': deepcopy(RESERVE_2),
+        'reserve_3': deepcopy(RESERVE_3)
+    }
+
+    for field, definition in QR_with_bad_transformations.definitions.items():
+        definition['transformations'] = [
+                (dict(), tuple())
+            ]
+    
+    return QR_with_bad_transformations
 
 
 @pytest.mark.parametrize(
@@ -77,7 +107,7 @@ def test_validate_one_method_correctly_uses_arguments(
         qr_instance: QR):
     try:
         qr_instance._validate_one(value, definition, field_name)
-    except ValidationError:
+    except BaseValidationError:
         pytest.fail('Validation in _validate_one() failed but should pass')
     except Exception:
         pytest.fail('An exception was raised while processing _validate_one()')
@@ -140,32 +170,34 @@ def test_transformation_raises_type_error_when_input_is_wrong_type(
         qr_instance._transform_one(field_name, value)
 
 
-def test_transformation_raises_type_error_when_first_item_is_not_callable():
+def test_transformation_raises_type_error_when_first_item_is_not_callable(qr_with_incorrect_transformations):
     # Replace existing transformation
-    qr = QR('01234567890123456789012345', 'Bob Smith', 'Payment title')
-    for field, definition in qr.definitions.items():
-        definition['transformations'] = [
-                (dict(), tuple())
-            ]
-
-        with pytest.raises(TypeError) as exc_info:
-            qr._QR__validate_transformations_are_callable(
-                definition['transformations'],
-                field_name=field
-            )
-        assert exc_info.match(
-            'Transformation must be callable. '
-            f'Please review transformations for "{field}"')
+    with pytest.raises(TypeError) as exc_info:
+        qr_with_incorrect_transformations(
+            '01234567890123456789012345',
+            'Bob Smith',
+            'Payment title'
+        )
+    assert exc_info.match(
+        'Transformation must be callable. '
+        f'Please review transformations for "iban"')
 
 
 # QR text validation
 
-def test_with_length_above_160_characters_raises_validation_error():
-    pass
+def test_with_length_above_160_characters_raises_validation_error(qr_instance):
+    qr_instance.data = {k: '' for k in qr_instance.data}
+    qr_instance.data['transfer_title'] = 'a' * 153 # + 8 separators gives 161 characters
+    with pytest.raises(QRTextValidationError):
+        qr_instance._set_qr_text()
 
 
-def test_qr_text_with_length_below_160_characters_does_not_raise_error():
-    pass
+def test_qr_text_with_length_equal_to_160_characters_does_not_raise_error(qr_instance):
+    qr_instance.data = {k: '' for k in qr_instance.data}
+    qr_instance.data['transfer_title'] = 'a' * 152 # + 8 separators gives 160 characters
+    qr_instance._set_qr_text()
+
+    assert len(qr_instance._qr_text) == 160
 
 
 def test_transformation_raises_transformationerror_upon_failure():

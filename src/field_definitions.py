@@ -31,6 +31,9 @@ QR_TEXT_FORMAT = ('{recipient_identifier}'
 )
 
 
+MAX_QR_TEXT_LENGTH = 160
+
+
 SEPARATOR = '|' # Not negiotiable?
 
 
