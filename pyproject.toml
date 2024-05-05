@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "bank-transfer-qrcode"
-version = "1.0.0"
+version = "0.1.0"
 description = "QR codes for bank transfers with banking applications"
 readme = "README.md"
 authors = [{ name = "Karol Podgórski", email = "karolsoon.dev@gmail.com" }]
@@ -37,7 +37,7 @@ Source = "https://github.com/Karolsoon/Bank-Transfer-QR"
 
 
 [tool.bumpver]
-current_version = "1.0.0"
+current_version = "0.1.0"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit_message  = "bump version {old_version} -> {new_version}"
 commit          = true

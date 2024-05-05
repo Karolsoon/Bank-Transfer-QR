@@ -9,21 +9,21 @@ from .exceptions import (
     TransferTitleValidationError,
     RecipientIdentifierValidationError
 )
-from . import field_definitions
+from . import field_definitions, exceptions
 
 
-__version__ = '1.0.0'
+__version__ = '0.1.0'
 
 
 __all__ = [
-    QR,
-    BaseValidationError,
-    IBANValidationError,
-    AmountValidationError,
-    QRTextValidationError,
-    CountryCodeValidationError,
-    RecipientNameValidationError,
-    TransferTitleValidationError,
-    RecipientIdentifierValidationError,
-    field_definitions
+    'QR',
+    'BaseValidationError',
+    'IBANValidationError',
+    'AmountValidationError',
+    'QRTextValidationError',
+    'CountryCodeValidationError',
+    'RecipientNameValidationError',
+    'TransferTitleValidationError',
+    'RecipientIdentifierValidationError',
+    'field_definitions'
 ]
