@@ -1,4 +1,4 @@
-from bank_transfer_qr import QR
+from bank_transfer_qrcode.bank_transfer_qr import QR
 
 
 # Get information about the input parameters

@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 
-from src.exceptions import (
+from .exceptions import (
     RecipientIdentifierValidationError,
     IBANValidationError,
     CountryCodeValidationError,

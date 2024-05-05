@@ -3,8 +3,8 @@ from copy import deepcopy
 
 import segno
 
-from src.exceptions import QRTextValidationError
-from src.field_definitions import (
+from .exceptions import QRTextValidationError
+from .field_definitions import (
     QR_TEXT_FORMAT,
     RECIPIENT_IDENTIFIER,
     COUNTRY_CODE,

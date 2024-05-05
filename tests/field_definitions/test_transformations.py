@@ -1,6 +1,6 @@
 import pytest
 
-from src.field_definitions import (
+from bank_transfer_qrcode.field_definitions import (
     RECIPIENT_IDENTIFIER,
     COUNTRY_CODE,
     IBAN_PL,

@@ -2,9 +2,9 @@ from copy import deepcopy
 
 import pytest
 
-from bank_transfer_qr import QR
-from src.exceptions import BaseValidationError, QRTextValidationError
-from src.field_definitions import (
+from bank_transfer_qrcode.bank_transfer_qr import QR
+from bank_transfer_qrcode.exceptions import BaseValidationError, QRTextValidationError
+from bank_transfer_qrcode.field_definitions import (
     RECIPIENT_IDENTIFIER,
     COUNTRY_CODE,
     IBAN_PL,
